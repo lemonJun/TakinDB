@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Implementation-Title: KiDB-example
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: 58
+Specification-Vendor: The Apache Software Foundation
+Specification-Title: KiDB-example
+Implementation-Vendor-Id: lemon
+Build-Jdk: 1.8.0_20-ea
+Specification-Version: 0.0
+Implementation-URL: https://www.apache.org/KiDB/KiDB-example/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: The Apache Software Foundation
+
