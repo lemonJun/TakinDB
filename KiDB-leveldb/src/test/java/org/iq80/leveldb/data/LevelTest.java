@@ -19,7 +19,7 @@ public class LevelTest {
 
     private void read() {
         DB db = init();
-
+        
         DBIterator iterator = db.iterator();
         try {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {

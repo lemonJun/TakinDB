@@ -367,6 +367,7 @@ public class DbImpl implements DB {
         } else if (immutableMemTable == null && manualCompaction == null && !versions.needsCompaction()) {
             // No work to be done
         } else {
+            //压缩为啥不是周期的呢
             backgroundCompaction = compactionExecutor.submit(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -389,13 +390,18 @@ public class DbImpl implements DB {
         }
     }
 
+    /**
+     * 按这个的逻辑是：虽然没有具体的返回值 但是一个线程总会有返回结果
+     * 确定压缩完则持续进行下一次压缩  这个比按时间的调度好多了   可以保证及时性
+     * 并且这一次压缩可能会在同一层产生较多的文件  再压次就好了  
+     * @throws IOException
+     */
     private void backgroundCall() throws IOException {
         mutex.lock();
         try {
             if (backgroundCompaction == null) {
                 return;
             }
-
             try {
                 if (!shuttingDown.get()) {
                     backgroundCompaction();
