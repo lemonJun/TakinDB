@@ -27,12 +27,9 @@ import java.nio.channels.FileChannel;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
-public class TestFileChannelLogWriter
-{
+public class TestFileChannelLogWriter {
     @Test
-    public void testLogRecordBounds()
-            throws Exception
-    {
+    public void testLogRecordBounds() throws Exception {
         File file = File.createTempFile("test", ".log");
         try {
             int recordSize = LogConstants.BLOCK_SIZE - LogConstants.HEADER_SIZE;
@@ -45,7 +42,7 @@ public class TestFileChannelLogWriter
             LogMonitor logMonitor = new AssertNoCorruptionLogMonitor();
 
             try (FileInputStream fis = new FileInputStream(file);
-                    FileChannel channel = fis.getChannel()) {
+                            FileChannel channel = fis.getChannel()) {
                 LogReader logReader = new LogReader(channel, logMonitor, true, 0);
                 int count = 0;
                 for (Slice slice = logReader.readRecord(); slice != null; slice = logReader.readRecord()) {
@@ -54,24 +51,19 @@ public class TestFileChannelLogWriter
                 }
                 assertEquals(count, 1);
             }
-        }
-        finally {
+        } finally {
             file.delete();
         }
     }
 
-    private static class AssertNoCorruptionLogMonitor
-            implements LogMonitor
-    {
+    private static class AssertNoCorruptionLogMonitor implements LogMonitor {
         @Override
-        public void corruption(long bytes, String reason)
-        {
+        public void corruption(long bytes, String reason) {
             fail("corruption at " + bytes + " reason: " + reason);
         }
 
         @Override
-        public void corruption(long bytes, Throwable reason)
-        {
+        public void corruption(long bytes, Throwable reason) {
             fail("corruption at " + bytes + " reason: " + reason);
         }
     }
