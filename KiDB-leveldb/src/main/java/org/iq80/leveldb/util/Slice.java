@@ -37,6 +37,7 @@ import static org.iq80.leveldb.util.SizeOf.SIZE_OF_LONG;
 import static org.iq80.leveldb.util.SizeOf.SIZE_OF_SHORT;
 
 /**
+ * 一个简单的数据结构数据结构
  * Little Endian slice of a byte array.
  */
 public final class Slice implements Comparable<Slice> {

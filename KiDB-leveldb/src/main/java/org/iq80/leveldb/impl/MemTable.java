@@ -29,7 +29,18 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.iq80.leveldb.util.SizeOf.SIZE_OF_LONG;
 
+/**
+ * 借助现成的skip-list提供了将KV数据写入，删除以及读取KV记录的操作接口
+ * 
+ * 当Memtable写入的数据占用内存到达指定数量(Options.write_buffer_size)，则自动转换为Immutable Memtable，等待Dump到磁盘中，
+ * 系统会自动生成新的Memtable供写操作写入新数据，理解了Memtable，那么Immutable Memtable自然不在话下
+ * 
+ * @author WangYazhou
+ * @date  2017年2月4日 下午7:27:08
+ * @see http://blog.csdn.net/tankles/article/details/7663635
+ */
 public class MemTable implements SeekingIterable<InternalKey, Slice> {
+    //算法简单  可以替代平衡树
     private final ConcurrentSkipListMap<InternalKey, Slice> table;
     private final AtomicLong approximateMemoryUsage = new AtomicLong();
 

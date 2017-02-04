@@ -25,9 +25,9 @@ import java.util.Map;
  */
 public interface DB extends Iterable<Map.Entry<byte[], byte[]>>, Closeable {
     byte[] get(byte[] key) throws DBException;
-
+    
     byte[] get(byte[] key, ReadOptions options) throws DBException;
-
+    
     @Override
     DBIterator iterator();
 
