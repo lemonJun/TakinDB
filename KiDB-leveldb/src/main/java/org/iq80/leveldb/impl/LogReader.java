@@ -35,8 +35,7 @@ import static org.iq80.leveldb.impl.LogConstants.BLOCK_SIZE;
 import static org.iq80.leveldb.impl.LogConstants.HEADER_SIZE;
 import static org.iq80.leveldb.impl.Logs.getChunkChecksum;
 
-public class LogReader
-{
+public class LogReader {
     private final FileChannel fileChannel;
 
     private final LogMonitor monitor;
@@ -83,16 +82,14 @@ public class LogReader
      */
     private Slice currentChunk = Slices.EMPTY_SLICE;
 
-    public LogReader(FileChannel fileChannel, LogMonitor monitor, boolean verifyChecksums, long initialOffset)
-    {
+    public LogReader(FileChannel fileChannel, LogMonitor monitor, boolean verifyChecksums, long initialOffset) {
         this.fileChannel = fileChannel;
         this.monitor = monitor;
         this.verifyChecksums = verifyChecksums;
         this.initialOffset = initialOffset;
     }
 
-    public long getLastRecordOffset()
-    {
+    public long getLastRecordOffset() {
         return lastRecordOffset;
     }
 
@@ -103,8 +100,7 @@ public class LogReader
      *
      * @return true on success.
      */
-    private boolean skipToInitialBlock()
-    {
+    private boolean skipToInitialBlock() {
         int offsetInBlock = (int) (initialOffset % BLOCK_SIZE);
         long blockStartLocation = initialOffset - offsetInBlock;
 
@@ -119,8 +115,7 @@ public class LogReader
         if (blockStartLocation > 0) {
             try {
                 fileChannel.position(blockStartLocation);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 reportDrop(blockStartLocation, e);
                 return false;
             }
@@ -129,8 +124,7 @@ public class LogReader
         return true;
     }
 
-    public Slice readRecord()
-    {
+    public Slice readRecord() {
         recordScratch.reset();
 
         // advance to the first record, if we haven't already
@@ -175,8 +169,7 @@ public class LogReader
 
                         // clear the scratch and skip this chunk
                         recordScratch.reset();
-                    }
-                    else {
+                    } else {
                         recordScratch.writeBytes(currentChunk);
                     }
                     break;
@@ -187,8 +180,7 @@ public class LogReader
 
                         // clear the scratch and skip this chunk
                         recordScratch.reset();
-                    }
-                    else {
+                    } else {
                         recordScratch.writeBytes(currentChunk);
                         lastRecordOffset = prospectiveRecordOffset;
                         return recordScratch.slice().copySlice();
@@ -228,8 +220,7 @@ public class LogReader
     /**
      * Return type, or one of the preceding special values
      */
-    private LogChunkType readNextChunk()
-    {
+    private LogChunkType readNextChunk() {
         // clear the current chunk
         currentChunk = Slices.EMPTY_SLICE;
 
@@ -298,8 +289,7 @@ public class LogReader
         return chunkType;
     }
 
-    public boolean readNextBlock()
-    {
+    public boolean readNextBlock() {
         if (eof) {
             return false;
         }
@@ -317,8 +307,7 @@ public class LogReader
                     break;
                 }
                 endOfBufferOffset += bytesRead;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 currentBlock = Slices.EMPTY_SLICE.input();
                 reportDrop(BLOCK_SIZE, e);
                 eof = true;
@@ -334,8 +323,7 @@ public class LogReader
      * Reports corruption to the monitor.
      * The buffer must be updated to remove the dropped bytes prior to invocation.
      */
-    private void reportCorruption(long bytes, String reason)
-    {
+    private void reportCorruption(long bytes, String reason) {
         if (monitor != null) {
             monitor.corruption(bytes, reason);
         }
@@ -345,8 +333,7 @@ public class LogReader
      * Reports dropped bytes to the monitor.
      * The buffer must be updated to remove the dropped bytes prior to invocation.
      */
-    private void reportDrop(long bytes, Throwable reason)
-    {
+    private void reportDrop(long bytes, Throwable reason) {
         if (monitor != null) {
             monitor.corruption(bytes, reason);
         }

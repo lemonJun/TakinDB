@@ -27,31 +27,26 @@ import static org.iq80.leveldb.table.BlockHandle.readBlockHandle;
 import static org.iq80.leveldb.table.BlockHandle.writeBlockHandleTo;
 import static org.iq80.leveldb.util.SizeOf.SIZE_OF_LONG;
 
-public class Footer
-{
+public class Footer {
     public static final int ENCODED_LENGTH = (BlockHandle.MAX_ENCODED_LENGTH * 2) + SIZE_OF_LONG;
 
     private final BlockHandle metaindexBlockHandle;
     private final BlockHandle indexBlockHandle;
 
-    Footer(BlockHandle metaindexBlockHandle, BlockHandle indexBlockHandle)
-    {
+    Footer(BlockHandle metaindexBlockHandle, BlockHandle indexBlockHandle) {
         this.metaindexBlockHandle = metaindexBlockHandle;
         this.indexBlockHandle = indexBlockHandle;
     }
 
-    public BlockHandle getMetaindexBlockHandle()
-    {
+    public BlockHandle getMetaindexBlockHandle() {
         return metaindexBlockHandle;
     }
 
-    public BlockHandle getIndexBlockHandle()
-    {
+    public BlockHandle getIndexBlockHandle() {
         return indexBlockHandle;
     }
 
-    public static Footer readFooter(Slice slice)
-    {
+    public static Footer readFooter(Slice slice) {
         Preconditions.checkNotNull(slice, "slice is null");
         Preconditions.checkArgument(slice.length() == ENCODED_LENGTH, "Expected slice.size to be %s but was %s", ENCODED_LENGTH, slice.length());
 
@@ -71,15 +66,13 @@ public class Footer
         return new Footer(metaindexBlockHandle, indexBlockHandle);
     }
 
-    public static Slice writeFooter(Footer footer)
-    {
+    public static Slice writeFooter(Footer footer) {
         Slice slice = Slices.allocate(ENCODED_LENGTH);
         writeFooter(footer, slice.output());
         return slice;
     }
 
-    public static void writeFooter(Footer footer, SliceOutput sliceOutput)
-    {
+    public static void writeFooter(Footer footer, SliceOutput sliceOutput) {
         // remember the starting write index so we can calculate the padding
         int startingWriteIndex = sliceOutput.size();
 

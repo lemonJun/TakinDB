@@ -19,28 +19,23 @@ package org.iq80.leveldb.impl;
 
 import org.iq80.leveldb.util.Slice;
 
-public class LookupKey
-{
+public class LookupKey {
     private final InternalKey key;
 
-    public LookupKey(Slice userKey, long sequenceNumber)
-    {
+    public LookupKey(Slice userKey, long sequenceNumber) {
         key = new InternalKey(userKey, sequenceNumber, ValueType.VALUE);
     }
 
-    public InternalKey getInternalKey()
-    {
+    public InternalKey getInternalKey() {
         return key;
     }
 
-    public Slice getUserKey()
-    {
+    public Slice getUserKey() {
         return key.getUserKey();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return key.toString();
     }
 }

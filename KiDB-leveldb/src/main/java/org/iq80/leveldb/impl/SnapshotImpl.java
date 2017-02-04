@@ -21,23 +21,19 @@ import org.iq80.leveldb.Snapshot;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SnapshotImpl
-        implements Snapshot
-{
+public class SnapshotImpl implements Snapshot {
     private final AtomicBoolean closed = new AtomicBoolean();
     private final Version version;
     private final long lastSequence;
 
-    SnapshotImpl(Version version, long lastSequence)
-    {
+    SnapshotImpl(Version version, long lastSequence) {
         this.version = version;
         this.lastSequence = lastSequence;
         this.version.retain();
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         // This is an end user API.. he might screw up and close multiple times.
         // but we don't want the version reference count going bad.
         if (closed.compareAndSet(false, true)) {
@@ -45,25 +41,21 @@ public class SnapshotImpl
         }
     }
 
-    public long getLastSequence()
-    {
+    public long getLastSequence() {
         return lastSequence;
     }
 
-    public Version getVersion()
-    {
+    public Version getVersion() {
         return version;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return Long.toString(lastSequence);
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -84,8 +76,7 @@ public class SnapshotImpl
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = version.hashCode();
         result = 31 * result + (int) (lastSequence ^ (lastSequence >>> 32));
         return result;

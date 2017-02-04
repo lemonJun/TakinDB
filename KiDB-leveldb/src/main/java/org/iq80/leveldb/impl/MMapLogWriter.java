@@ -37,9 +37,7 @@ import static org.iq80.leveldb.impl.LogConstants.BLOCK_SIZE;
 import static org.iq80.leveldb.impl.LogConstants.HEADER_SIZE;
 import static org.iq80.leveldb.impl.Logs.getChunkChecksum;
 
-public class MMapLogWriter
-        implements LogWriter
-{
+public class MMapLogWriter implements LogWriter {
     private static final int PAGE_SIZE = 1024 * 1024;
 
     private final File file;
@@ -53,9 +51,7 @@ public class MMapLogWriter
      */
     private int blockOffset;
 
-    public MMapLogWriter(File file, long fileNumber)
-            throws IOException
-    {
+    public MMapLogWriter(File file, long fileNumber) throws IOException {
         Preconditions.checkNotNull(file, "file is null");
         Preconditions.checkArgument(fileNumber >= 0, "fileNumber is negative");
         this.file = file;
@@ -65,15 +61,12 @@ public class MMapLogWriter
     }
 
     @Override
-    public boolean isClosed()
-    {
+    public boolean isClosed() {
         return closed.get();
     }
 
     @Override
-    public synchronized void close()
-            throws IOException
-    {
+    public synchronized void close() throws IOException {
         closed.set(true);
 
         destroyMappedByteBuffer();
@@ -87,17 +80,14 @@ public class MMapLogWriter
     }
 
     @Override
-    public synchronized void delete()
-            throws IOException
-    {
+    public synchronized void delete() throws IOException {
         close();
 
         // try to delete the file
         file.delete();
     }
 
-    private void destroyMappedByteBuffer()
-    {
+    private void destroyMappedByteBuffer() {
         if (mappedByteBuffer != null) {
             fileOffset += mappedByteBuffer.position();
             unmap();
@@ -106,22 +96,18 @@ public class MMapLogWriter
     }
 
     @Override
-    public File getFile()
-    {
+    public File getFile() {
         return file;
     }
 
     @Override
-    public long getFileNumber()
-    {
+    public long getFileNumber() {
         return fileNumber;
     }
 
     // Writes a stream of chunks such that no chunk is split across a block boundary
     @Override
-    public synchronized void addRecord(Slice record, boolean force)
-            throws IOException
-    {
+    public synchronized void addRecord(Slice record, boolean force) throws IOException {
         Preconditions.checkState(!closed.get(), "Log has been closed");
 
         SliceInput sliceInput = record.input();
@@ -159,8 +145,7 @@ public class MMapLogWriter
             if (sliceInput.available() > bytesAvailableInBlock) {
                 end = false;
                 fragmentLength = bytesAvailableInBlock;
-            }
-            else {
+            } else {
                 end = true;
                 fragmentLength = sliceInput.available();
             }
@@ -169,14 +154,11 @@ public class MMapLogWriter
             LogChunkType type;
             if (begin && end) {
                 type = LogChunkType.FULL;
-            }
-            else if (begin) {
+            } else if (begin) {
                 type = LogChunkType.FIRST;
-            }
-            else if (end) {
+            } else if (end) {
                 type = LogChunkType.LAST;
-            }
-            else {
+            } else {
                 type = LogChunkType.MIDDLE;
             }
 
@@ -192,9 +174,7 @@ public class MMapLogWriter
         }
     }
 
-    private void writeChunk(LogChunkType type, Slice slice)
-            throws IOException
-    {
+    private void writeChunk(LogChunkType type, Slice slice) throws IOException {
         Preconditions.checkArgument(slice.length() <= 0xffff, "length %s is larger than two bytes", slice.length());
         Preconditions.checkArgument(blockOffset + HEADER_SIZE <= BLOCK_SIZE);
 
@@ -209,9 +189,7 @@ public class MMapLogWriter
         blockOffset += HEADER_SIZE + slice.length();
     }
 
-    private void ensureCapacity(int bytes)
-            throws IOException
-    {
+    private void ensureCapacity(int bytes) throws IOException {
         if (mappedByteBuffer.remaining() < bytes) {
             // remap
             fileOffset += mappedByteBuffer.position();
@@ -221,13 +199,11 @@ public class MMapLogWriter
         }
     }
 
-    private void unmap()
-    {
+    private void unmap() {
         ByteBufferSupport.unmap(mappedByteBuffer);
     }
 
-    private static Slice newLogRecordHeader(LogChunkType type, Slice slice)
-    {
+    private static Slice newLogRecordHeader(LogChunkType type, Slice slice) {
         int crc = getChunkChecksum(type.getPersistentId(), slice.getRawArray(), slice.getRawOffset(), slice.length());
 
         // Format the header

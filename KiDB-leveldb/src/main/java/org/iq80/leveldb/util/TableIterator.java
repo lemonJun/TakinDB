@@ -23,31 +23,26 @@ import org.iq80.leveldb.table.Table;
 
 import java.util.Map.Entry;
 
-public final class TableIterator
-        extends AbstractSeekingIterator<Slice, Slice>
-{
+public final class TableIterator extends AbstractSeekingIterator<Slice, Slice> {
     private final Table table;
     private final BlockIterator blockIterator;
     private BlockIterator current;
 
-    public TableIterator(Table table, BlockIterator blockIterator)
-    {
+    public TableIterator(Table table, BlockIterator blockIterator) {
         this.table = table;
         this.blockIterator = blockIterator;
         current = null;
     }
 
     @Override
-    protected void seekToFirstInternal()
-    {
+    protected void seekToFirstInternal() {
         // reset index to before first and clear the data iterator
         blockIterator.seekToFirst();
         current = null;
     }
 
     @Override
-    protected void seekInternal(Slice targetKey)
-    {
+    protected void seekInternal(Slice targetKey) {
         // seek the index to the block containing the key
         blockIterator.seek(targetKey);
 
@@ -56,15 +51,13 @@ public final class TableIterator
             // seek the current iterator to the key
             current = getNextBlock();
             current.seek(targetKey);
-        }
-        else {
+        } else {
             current = null;
         }
     }
 
     @Override
-    protected Entry<Slice, Slice> getNextElement()
-    {
+    protected Entry<Slice, Slice> getNextElement() {
         // note: it must be here & not where 'current' is assigned,
         // because otherwise we'll have called inputs.next() before throwing
         // the first NPE, and the next time around we'll call inputs.next()
@@ -77,35 +70,30 @@ public final class TableIterator
             if (!(currentHasNext)) {
                 if (blockIterator.hasNext()) {
                     current = getNextBlock();
-                }
-                else {
+                } else {
                     break;
                 }
-            }
-            else {
+            } else {
                 break;
             }
         }
         if (currentHasNext) {
             return current.next();
-        }
-        else {
+        } else {
             // set current to empty iterator to avoid extra calls to user iterators
             current = null;
             return null;
         }
     }
 
-    private BlockIterator getNextBlock()
-    {
+    private BlockIterator getNextBlock() {
         Slice blockHandle = blockIterator.next().getValue();
         Block dataBlock = table.openBlock(blockHandle);
         return dataBlock.iterator();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ConcatenatingIterator");
         sb.append("{blockIterator=").append(blockIterator);

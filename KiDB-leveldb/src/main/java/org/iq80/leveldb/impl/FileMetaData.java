@@ -21,13 +21,10 @@ import com.google.common.base.Function;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FileMetaData
-{
-    public static final Function<FileMetaData, InternalKey> GET_LARGEST_USER_KEY = new Function<FileMetaData, InternalKey>()
-    {
+public class FileMetaData {
+    public static final Function<FileMetaData, InternalKey> GET_LARGEST_USER_KEY = new Function<FileMetaData, InternalKey>() {
         @Override
-        public InternalKey apply(FileMetaData fileMetaData)
-        {
+        public InternalKey apply(FileMetaData fileMetaData) {
             return fileMetaData.getLargest();
         }
     };
@@ -55,52 +52,43 @@ public class FileMetaData
     // todo this mutable state should be moved elsewhere
     private final AtomicInteger allowedSeeks = new AtomicInteger(1 << 30);
 
-    public FileMetaData(long number, long fileSize, InternalKey smallest, InternalKey largest)
-    {
+    public FileMetaData(long number, long fileSize, InternalKey smallest, InternalKey largest) {
         this.number = number;
         this.fileSize = fileSize;
         this.smallest = smallest;
         this.largest = largest;
     }
 
-    public long getFileSize()
-    {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public long getNumber()
-    {
+    public long getNumber() {
         return number;
     }
 
-    public InternalKey getSmallest()
-    {
+    public InternalKey getSmallest() {
         return smallest;
     }
 
-    public InternalKey getLargest()
-    {
+    public InternalKey getLargest() {
         return largest;
     }
 
-    public int getAllowedSeeks()
-    {
+    public int getAllowedSeeks() {
         return allowedSeeks.get();
     }
 
-    public void setAllowedSeeks(int allowedSeeks)
-    {
+    public void setAllowedSeeks(int allowedSeeks) {
         this.allowedSeeks.set(allowedSeeks);
     }
 
-    public void decrementAllowedSeeks()
-    {
+    public void decrementAllowedSeeks() {
         allowedSeeks.getAndDecrement();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("FileMetaData");
         sb.append("{number=").append(number);

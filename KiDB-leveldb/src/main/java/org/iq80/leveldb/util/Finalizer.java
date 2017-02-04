@@ -29,13 +29,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Finalizer<T>
-{
-    public static final FinalizerMonitor IGNORE_FINALIZER_MONITOR = new FinalizerMonitor()
-    {
+public class Finalizer<T> {
+    public static final FinalizerMonitor IGNORE_FINALIZER_MONITOR = new FinalizerMonitor() {
         @Override
-        public void unexpectedException(Throwable throwable)
-        {
+        public void unexpectedException(Throwable throwable) {
         }
     };
 
@@ -47,35 +44,28 @@ public class Finalizer<T>
     private final AtomicBoolean destroyed = new AtomicBoolean();
     private ExecutorService executor;
 
-    public Finalizer()
-    {
+    public Finalizer() {
         this(1, IGNORE_FINALIZER_MONITOR);
     }
 
-    public Finalizer(int threads)
-    {
+    public Finalizer(int threads) {
         this(1, IGNORE_FINALIZER_MONITOR);
     }
 
-    public Finalizer(int threads, FinalizerMonitor monitor)
-    {
+    public Finalizer(int threads, FinalizerMonitor monitor) {
         this.monitor = monitor;
         Preconditions.checkArgument(threads >= 1, "threads must be at least 1");
         this.threads = threads;
     }
 
-    public synchronized void addCleanup(T item, Callable<?> cleanup)
-    {
+    public synchronized void addCleanup(T item, Callable<?> cleanup) {
         Preconditions.checkNotNull(item, "item is null");
         Preconditions.checkNotNull(cleanup, "cleanup is null");
         Preconditions.checkState(!destroyed.get(), "%s is destroyed", getClass().getName());
 
         if (executor == null) {
             // create executor
-            ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                    .setNameFormat("FinalizerQueueProcessor-%d")
-                    .setDaemon(true)
-                    .build();
+            ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("FinalizerQueueProcessor-%d").setDaemon(true).build();
             executor = Executors.newFixedThreadPool(threads, threadFactory);
 
             // start queue processor jobs
@@ -92,8 +82,7 @@ public class Finalizer<T>
         references.put(reference, Boolean.TRUE);
     }
 
-    public synchronized void destroy()
-    {
+    public synchronized void destroy() {
         destroyed.set(true);
         if (executor != null) {
             executor.shutdownNow();
@@ -101,51 +90,40 @@ public class Finalizer<T>
         for (FinalizerPhantomReference<T> r : references.keySet()) {
             try {
                 r.cleanup();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
         }
     }
 
-    public interface FinalizerMonitor
-    {
+    public interface FinalizerMonitor {
         void unexpectedException(Throwable throwable);
     }
 
-    private static class FinalizerPhantomReference<T>
-            extends PhantomReference<T>
-    {
+    private static class FinalizerPhantomReference<T> extends PhantomReference<T> {
         private final AtomicBoolean cleaned = new AtomicBoolean(false);
         private final Callable<?> cleanup;
 
-        private FinalizerPhantomReference(T referent, ReferenceQueue<? super T> queue, Callable<?> cleanup)
-        {
+        private FinalizerPhantomReference(T referent, ReferenceQueue<? super T> queue, Callable<?> cleanup) {
             super(referent, queue);
             this.cleanup = cleanup;
         }
 
-        private void cleanup()
-                throws Exception
-        {
+        private void cleanup() throws Exception {
             if (cleaned.compareAndSet(false, true)) {
                 cleanup.call();
             }
         }
     }
 
-    private class FinalizerQueueProcessor
-            implements Runnable
-    {
+    private class FinalizerQueueProcessor implements Runnable {
         @Override
-        public void run()
-        {
+        public void run() {
             while (!destroyed.get()) {
                 // get the next reference to cleanup
                 FinalizerPhantomReference<T> reference;
                 try {
                     reference = (FinalizerPhantomReference<T>) referenceQueue.remove();
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
                 }
@@ -157,20 +135,17 @@ public class Finalizer<T>
                 try {
                     reference.cleanup();
                     rescheduleAndReturn = Thread.currentThread().isInterrupted();
-                }
-                catch (Throwable userException) {
+                } catch (Throwable userException) {
                     try {
                         monitor.unexpectedException(userException);
-                    }
-                    catch (Exception ignored) {
+                    } catch (Exception ignored) {
                         // todo consider a broader notification
                     }
 
                     if (userException instanceof InterruptedException) {
                         rescheduleAndReturn = true;
                         Thread.currentThread().interrupt();
-                    }
-                    else if (userException instanceof Error) {
+                    } else if (userException instanceof Error) {
                         rescheduleAndReturn = true;
                     }
                 }

@@ -24,29 +24,23 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
-public class InternalKeyComparator
-        implements Comparator<InternalKey>
-{
+public class InternalKeyComparator implements Comparator<InternalKey> {
     private final UserComparator userComparator;
 
-    public InternalKeyComparator(UserComparator userComparator)
-    {
+    public InternalKeyComparator(UserComparator userComparator) {
         this.userComparator = userComparator;
     }
 
-    public UserComparator getUserComparator()
-    {
+    public UserComparator getUserComparator() {
         return userComparator;
     }
 
-    public String name()
-    {
+    public String name() {
         return this.userComparator.name();
     }
 
     @Override
-    public int compare(InternalKey left, InternalKey right)
-    {
+    public int compare(InternalKey left, InternalKey right) {
         int result = userComparator.compare(left.getUserKey(), right.getUserKey());
         if (result != 0) {
             return result;
@@ -61,8 +55,7 @@ public class InternalKeyComparator
      * ordering. Note that this is always true when the iterable has fewer than
      * two elements.
      */
-    public boolean isOrdered(InternalKey... keys)
-    {
+    public boolean isOrdered(InternalKey... keys) {
         return isOrdered(Arrays.asList(keys));
     }
 
@@ -72,8 +65,7 @@ public class InternalKeyComparator
      * ordering. Note that this is always true when the iterable has fewer than
      * two elements.
      */
-    public boolean isOrdered(Iterable<InternalKey> keys)
-    {
+    public boolean isOrdered(Iterable<InternalKey> keys) {
         Iterator<InternalKey> iterator = keys.iterator();
         if (!iterator.hasNext()) {
             return true;

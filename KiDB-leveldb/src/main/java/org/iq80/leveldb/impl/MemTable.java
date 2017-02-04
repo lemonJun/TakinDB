@@ -29,29 +29,23 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.iq80.leveldb.util.SizeOf.SIZE_OF_LONG;
 
-public class MemTable
-        implements SeekingIterable<InternalKey, Slice>
-{
+public class MemTable implements SeekingIterable<InternalKey, Slice> {
     private final ConcurrentSkipListMap<InternalKey, Slice> table;
     private final AtomicLong approximateMemoryUsage = new AtomicLong();
 
-    public MemTable(InternalKeyComparator internalKeyComparator)
-    {
+    public MemTable(InternalKeyComparator internalKeyComparator) {
         table = new ConcurrentSkipListMap<>(internalKeyComparator);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return table.isEmpty();
     }
 
-    public long approximateMemoryUsage()
-    {
+    public long approximateMemoryUsage() {
         return approximateMemoryUsage.get();
     }
 
-    public void add(long sequenceNumber, ValueType valueType, Slice key, Slice value)
-    {
+    public void add(long sequenceNumber, ValueType valueType, Slice key, Slice value) {
         Preconditions.checkNotNull(valueType, "valueType is null");
         Preconditions.checkNotNull(key, "key is null");
         Preconditions.checkNotNull(valueType, "valueType is null");
@@ -62,8 +56,7 @@ public class MemTable
         approximateMemoryUsage.addAndGet(key.length() + SIZE_OF_LONG + value.length());
     }
 
-    public LookupResult get(LookupKey key)
-    {
+    public LookupResult get(LookupKey key) {
         Preconditions.checkNotNull(key, "key is null");
 
         InternalKey internalKey = key.getInternalKey();
@@ -76,8 +69,7 @@ public class MemTable
         if (entryKey.getUserKey().equals(key.getUserKey())) {
             if (entryKey.getValueType() == ValueType.DELETION) {
                 return LookupResult.deleted(key);
-            }
-            else {
+            } else {
                 return LookupResult.ok(key, entry.getValue());
             }
         }
@@ -85,56 +77,46 @@ public class MemTable
     }
 
     @Override
-    public MemTableIterator iterator()
-    {
+    public MemTableIterator iterator() {
         return new MemTableIterator();
     }
 
-    public class MemTableIterator
-            implements InternalIterator
-    {
+    public class MemTableIterator implements InternalIterator {
         private PeekingIterator<Entry<InternalKey, Slice>> iterator;
 
-        public MemTableIterator()
-        {
+        public MemTableIterator() {
             iterator = Iterators.peekingIterator(table.entrySet().iterator());
         }
 
         @Override
-        public boolean hasNext()
-        {
+        public boolean hasNext() {
             return iterator.hasNext();
         }
 
         @Override
-        public void seekToFirst()
-        {
+        public void seekToFirst() {
             iterator = Iterators.peekingIterator(table.entrySet().iterator());
         }
 
         @Override
-        public void seek(InternalKey targetKey)
-        {
+        public void seek(InternalKey targetKey) {
             iterator = Iterators.peekingIterator(table.tailMap(targetKey).entrySet().iterator());
         }
 
         @Override
-        public InternalEntry peek()
-        {
+        public InternalEntry peek() {
             Entry<InternalKey, Slice> entry = iterator.peek();
             return new InternalEntry(entry.getKey(), entry.getValue());
         }
 
         @Override
-        public InternalEntry next()
-        {
+        public InternalEntry next() {
             Entry<InternalKey, Slice> entry = iterator.next();
             return new InternalEntry(entry.getKey(), entry.getValue());
         }
 
         @Override
-        public void remove()
-        {
+        public void remove() {
             throw new UnsupportedOperationException();
         }
     }

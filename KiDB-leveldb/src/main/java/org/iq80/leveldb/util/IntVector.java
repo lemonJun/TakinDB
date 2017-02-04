@@ -21,28 +21,23 @@ import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
 
-public class IntVector
-{
+public class IntVector {
     private int size;
     private int[] values;
 
-    public IntVector(int initialCapacity)
-    {
+    public IntVector(int initialCapacity) {
         this.values = new int[initialCapacity];
     }
 
-    public int size()
-    {
+    public int size() {
         return size;
     }
 
-    public void clear()
-    {
+    public void clear() {
         size = 0;
     }
 
-    public void add(int value)
-    {
+    public void add(int value) {
         Preconditions.checkArgument(size + 1 >= 0, "Invalid minLength: %s", size + 1);
 
         ensureCapacity(size + 1);
@@ -50,8 +45,7 @@ public class IntVector
         values[size++] = value;
     }
 
-    private void ensureCapacity(int minCapacity)
-    {
+    private void ensureCapacity(int minCapacity) {
         if (values.length >= minCapacity) {
             return;
         }
@@ -59,29 +53,25 @@ public class IntVector
         int newLength = values.length;
         if (newLength == 0) {
             newLength = 1;
-        }
-        else {
+        } else {
             newLength <<= 1;
 
         }
         values = Arrays.copyOf(values, newLength);
     }
 
-    public int[] values()
-    {
+    public int[] values() {
         return Arrays.copyOf(values, size);
     }
 
-    public void write(SliceOutput sliceOutput)
-    {
+    public void write(SliceOutput sliceOutput) {
         for (int index = 0; index < size; index++) {
             sliceOutput.writeInt(values[index]);
         }
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("IntVector");
         sb.append("{size=").append(size);

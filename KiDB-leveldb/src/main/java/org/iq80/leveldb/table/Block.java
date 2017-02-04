@@ -60,17 +60,14 @@ import static org.iq80.leveldb.util.SizeOf.SIZE_OF_INT;
  * </tbody>
  * </table>
  */
-public class Block
-        implements SeekingIterable<Slice, Slice>
-{
+public class Block implements SeekingIterable<Slice, Slice> {
     private final Slice block;
     private final Comparator<Slice> comparator;
 
     private final Slice data;
     private final Slice restartPositions;
 
-    public Block(Slice block, Comparator<Slice> comparator)
-    {
+    public Block(Slice block, Comparator<Slice> comparator) {
         Preconditions.checkNotNull(block, "block is null");
         Preconditions.checkArgument(block.length() >= SIZE_OF_INT, "Block is corrupt: size must be at least %s block", SIZE_OF_INT);
         Preconditions.checkNotNull(comparator, "comparator is null");
@@ -94,21 +91,18 @@ public class Block
 
             // data starts at 0 and extends to the restart index
             data = block.slice(0, restartOffset);
-        }
-        else {
+        } else {
             data = Slices.EMPTY_SLICE;
             restartPositions = Slices.EMPTY_SLICE;
         }
     }
 
-    public long size()
-    {
+    public long size() {
         return block.length();
     }
 
     @Override
-    public BlockIterator iterator()
-    {
+    public BlockIterator iterator() {
         return new BlockIterator(data, restartPositions, comparator);
     }
 }

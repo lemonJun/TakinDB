@@ -22,8 +22,7 @@ import com.google.common.base.Throwables;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 
-public final class ByteBufferSupport
-{
+public final class ByteBufferSupport {
     private static final Method getCleaner;
     private static final Method clean;
 
@@ -31,8 +30,7 @@ public final class ByteBufferSupport
         try {
             getCleaner = Class.forName("java.nio.DirectByteBuffer").getDeclaredMethod("cleaner");
             getCleaner.setAccessible(true);
-        }
-        catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException e) {
             throw new AssertionError(e);
         }
 
@@ -40,27 +38,22 @@ public final class ByteBufferSupport
             Class<?> returnType = getCleaner.getReturnType();
             if (Runnable.class.isAssignableFrom(returnType)) {
                 clean = Runnable.class.getMethod("run");
-            }
-            else {
+            } else {
                 clean = returnType.getMethod("clean");
             }
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             throw new AssertionError(e);
         }
     }
 
-    private ByteBufferSupport()
-    {
+    private ByteBufferSupport() {
     }
 
-    public static void unmap(MappedByteBuffer buffer)
-    {
+    public static void unmap(MappedByteBuffer buffer) {
         try {
             Object cleaner = getCleaner.invoke(buffer);
             clean.invoke(cleaner);
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             throw Throwables.propagate(ignored);
         }
     }

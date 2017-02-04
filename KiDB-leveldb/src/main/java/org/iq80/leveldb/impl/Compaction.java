@@ -27,8 +27,7 @@ import static org.iq80.leveldb.impl.DbConstants.NUM_LEVELS;
 import static org.iq80.leveldb.impl.VersionSet.MAX_GRAND_PARENT_OVERLAP_BYTES;
 
 // A Compaction encapsulates information about a compaction.
-public class Compaction
-{
+public class Compaction {
     private final Version inputVersion;
     private final int level;
 
@@ -61,70 +60,58 @@ public class Compaction
     // all L >= level_ + 2).
     private final int[] levelPointers = new int[NUM_LEVELS];
 
-    public Compaction(Version inputVersion, int level, List<FileMetaData> levelInputs, List<FileMetaData> levelUpInputs, List<FileMetaData> grandparents)
-    {
+    public Compaction(Version inputVersion, int level, List<FileMetaData> levelInputs, List<FileMetaData> levelUpInputs, List<FileMetaData> grandparents) {
         this.inputVersion = inputVersion;
         this.level = level;
         this.levelInputs = levelInputs;
         this.levelUpInputs = levelUpInputs;
         this.grandparents = grandparents;
         this.maxOutputFileSize = VersionSet.maxFileSizeForLevel(level);
-        this.inputs = new List[] {levelInputs, levelUpInputs};
+        this.inputs = new List[] { levelInputs, levelUpInputs };
     }
 
-    public int getLevel()
-    {
+    public int getLevel() {
         return level;
     }
 
-    public List<FileMetaData> getLevelInputs()
-    {
+    public List<FileMetaData> getLevelInputs() {
         return levelInputs;
     }
 
-    public List<FileMetaData> getLevelUpInputs()
-    {
+    public List<FileMetaData> getLevelUpInputs() {
         return levelUpInputs;
     }
 
-    public VersionEdit getEdit()
-    {
+    public VersionEdit getEdit() {
         return edit;
     }
 
     // Return the ith input file at "level()+which" ("which" must be 0 or 1).
-    public FileMetaData input(int which, int i)
-    {
+    public FileMetaData input(int which, int i) {
         Preconditions.checkArgument(which == 0 || which == 1, "which must be either 0 or 1");
         if (which == 0) {
             return levelInputs.get(i);
-        }
-        else {
+        } else {
             return levelUpInputs.get(i);
         }
     }
 
     // Maximum size of files to build during this compaction.
-    public long getMaxOutputFileSize()
-    {
+    public long getMaxOutputFileSize() {
         return maxOutputFileSize;
     }
 
     // Is this a trivial compaction that can be implemented by just
     // moving a single input file to the next level (no merging or splitting)
-    public boolean isTrivialMove()
-    {
+    public boolean isTrivialMove() {
         // Avoid a move if there is lots of overlapping grandparent data.
         // Otherwise, the move could create a parent file that will require
         // a very expensive merge later on.
-        return (levelInputs.size() == 1 &&
-                levelUpInputs.isEmpty() &&
-                totalFileSize(grandparents) <= MAX_GRAND_PARENT_OVERLAP_BYTES);
+        return (levelInputs.size() == 1 && levelUpInputs.isEmpty() && totalFileSize(grandparents) <= MAX_GRAND_PARENT_OVERLAP_BYTES);
 
     }
 
-    public static long totalFileSize(List<FileMetaData> files)
-    {
+    public static long totalFileSize(List<FileMetaData> files) {
         long sum = 0;
         for (FileMetaData file : files) {
             sum += file.getFileSize();
@@ -133,8 +120,7 @@ public class Compaction
     }
 
     // Add all inputs to this compaction as delete operations to *edit.
-    public void addInputDeletions(VersionEdit edit)
-    {
+    public void addInputDeletions(VersionEdit edit) {
         for (FileMetaData input : levelInputs) {
             edit.deleteFile(level, input.getNumber());
         }
@@ -146,8 +132,7 @@ public class Compaction
     // Returns true if the information we have available guarantees that
     // the compaction is producing data in "level+1" for which no data exists
     // in levels greater than "level+1".
-    public boolean isBaseLevelForKey(Slice userKey)
-    {
+    public boolean isBaseLevelForKey(Slice userKey) {
         // Maybe use binary search to find right entry instead of linear search?
         UserComparator userComparator = inputVersion.getInternalKeyComparator().getUserComparator();
         for (int level = this.level + 2; level < NUM_LEVELS; level++) {
@@ -170,8 +155,7 @@ public class Compaction
 
     // Returns true iff we should stop building the current output
     // before processing "internal_key".
-    public boolean shouldStopBefore(InternalKey internalKey)
-    {
+    public boolean shouldStopBefore(InternalKey internalKey) {
         if (grandparents == null) {
             return false;
         }
@@ -190,14 +174,12 @@ public class Compaction
             // Too much overlap for current output; start new output
             overlappedBytes = 0;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    public List<FileMetaData>[] getInputs()
-    {
+    public List<FileMetaData>[] getInputs() {
         return inputs;
     }
 }

@@ -55,7 +55,7 @@ public class LevelDBLog implements Log {
         //        db = factory.open(dbFileName, options);
         db = Iq80DBFactory.factory.open(dbFileName, options);
         log.trace("opened %s", db);
-        
+
         if (isANewRAFTLog()) {
             log.trace("log %s is new, must be initialized", dbFileName);
             initLogWithMetadata();

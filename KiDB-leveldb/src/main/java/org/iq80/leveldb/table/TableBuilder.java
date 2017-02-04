@@ -32,8 +32,7 @@ import java.nio.channels.FileChannel;
 
 import static org.iq80.leveldb.impl.VersionSet.TARGET_FILE_SIZE;
 
-public class TableBuilder
-{
+public class TableBuilder {
     /**
      * TABLE_MAGIC_NUMBER was picked by running
      * echo http://code.google.com/p/leveldb/ | sha1sum
@@ -64,20 +63,18 @@ public class TableBuilder
     // entries in the first block and < all entries in subsequent
     // blocks.
     private boolean pendingIndexEntry;
-    private BlockHandle pendingHandle;  // Handle to add to index block
+    private BlockHandle pendingHandle; // Handle to add to index block
 
     private Slice compressedOutput;
 
     private long position;
 
-    public TableBuilder(Options options, FileChannel fileChannel, UserComparator userComparator)
-    {
+    public TableBuilder(Options options, FileChannel fileChannel, UserComparator userComparator) {
         Preconditions.checkNotNull(options, "options is null");
         Preconditions.checkNotNull(fileChannel, "fileChannel is null");
         try {
             Preconditions.checkState(position == fileChannel.position(), "Expected position %s to equal fileChannel.position %s", position, fileChannel.position());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw Throwables.propagate(e);
         }
 
@@ -97,27 +94,20 @@ public class TableBuilder
         lastKey = Slices.EMPTY_SLICE;
     }
 
-    public long getEntryCount()
-    {
+    public long getEntryCount() {
         return entryCount;
     }
 
-    public long getFileSize()
-            throws IOException
-    {
+    public long getFileSize() throws IOException {
         return position + dataBlockBuilder.currentSizeEstimate();
     }
 
-    public void add(BlockEntry blockEntry)
-            throws IOException
-    {
+    public void add(BlockEntry blockEntry) throws IOException {
         Preconditions.checkNotNull(blockEntry, "blockEntry is null");
         add(blockEntry.getKey(), blockEntry.getValue());
     }
 
-    public void add(Slice key, Slice value)
-            throws IOException
-    {
+    public void add(Slice key, Slice value) throws IOException {
         Preconditions.checkNotNull(key, "key is null");
         Preconditions.checkNotNull(value, "value is null");
 
@@ -148,9 +138,7 @@ public class TableBuilder
         }
     }
 
-    private void flush()
-            throws IOException
-    {
+    private void flush() throws IOException {
         Preconditions.checkState(!closed, "table is finished");
         if (dataBlockBuilder.isEmpty()) {
             return;
@@ -162,9 +150,7 @@ public class TableBuilder
         pendingIndexEntry = true;
     }
 
-    private BlockHandle writeBlock(BlockBuilder blockBuilder)
-            throws IOException
-    {
+    private BlockHandle writeBlock(BlockBuilder blockBuilder) throws IOException {
         // close the block
         Slice raw = blockBuilder.finish();
 
@@ -181,8 +167,7 @@ public class TableBuilder
                     blockContents = compressedOutput.slice(0, compressedSize);
                     blockCompressionType = CompressionType.SNAPPY;
                 }
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored) {
                 // compression failed, so just store uncompressed form
             }
         }
@@ -195,7 +180,7 @@ public class TableBuilder
         BlockHandle blockHandle = new BlockHandle(position, blockContents.length());
 
         // write data and trailer
-        position += fileChannel.write(new ByteBuffer[] {blockContents.toByteBuffer(), trailer.toByteBuffer()});
+        position += fileChannel.write(new ByteBuffer[] { blockContents.toByteBuffer(), trailer.toByteBuffer() });
 
         // clean up state
         blockBuilder.reset();
@@ -203,8 +188,7 @@ public class TableBuilder
         return blockHandle;
     }
 
-    private static int maxCompressedLength(int length)
-    {
+    private static int maxCompressedLength(int length) {
         // Compressed data can be defined as:
         //    compressed := item* literal*
         //    item       := literal* copy
@@ -228,9 +212,7 @@ public class TableBuilder
         return 32 + length + (length / 6);
     }
 
-    public void finish()
-            throws IOException
-    {
+    public void finish() throws IOException {
         Preconditions.checkState(!closed, "table is finished");
 
         // flush current data block
@@ -262,22 +244,19 @@ public class TableBuilder
         position += fileChannel.write(footerEncoding.toByteBuffer());
     }
 
-    public void abandon()
-    {
+    public void abandon() {
         Preconditions.checkState(!closed, "table is finished");
         closed = true;
     }
 
-    public static int crc32c(Slice data, CompressionType type)
-    {
+    public static int crc32c(Slice data, CompressionType type) {
         PureJavaCrc32C crc32c = new PureJavaCrc32C();
         crc32c.update(data.getRawArray(), data.getRawOffset(), data.length());
         crc32c.update(type.persistentId() & 0xFF);
         return crc32c.getMaskedValue();
     }
 
-    public void ensureCompressedOutputCapacity(int capacity)
-    {
+    public void ensureCompressedOutputCapacity(int capacity) {
         if (compressedOutput != null && compressedOutput.length() > capacity) {
             return;
         }

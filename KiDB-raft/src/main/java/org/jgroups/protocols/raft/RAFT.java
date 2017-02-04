@@ -77,7 +77,7 @@ public class RAFT extends Protocol implements Runnable, Settable, DynamicMembers
 
     @Property(description = "The identifier of this node. Needs to be unique and an element of members. Must not be null", writable = false)
     protected String raft_id;
-    
+
     /** The set of members defining the Raft cluster */
     protected final List<String> members = new ArrayList<>();
 

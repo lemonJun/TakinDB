@@ -36,16 +36,13 @@ import static org.iq80.leveldb.impl.SequenceNumber.MAX_SEQUENCE_NUMBER;
 import static org.iq80.leveldb.impl.ValueType.VALUE;
 
 // todo this class should be immutable
-public class Level
-        implements SeekingIterable<InternalKey, Slice>
-{
+public class Level implements SeekingIterable<InternalKey, Slice> {
     private final int levelNumber;
     private final TableCache tableCache;
     private final InternalKeyComparator internalKeyComparator;
     private final List<FileMetaData> files;
 
-    public Level(int levelNumber, List<FileMetaData> files, TableCache tableCache, InternalKeyComparator internalKeyComparator)
-    {
+    public Level(int levelNumber, List<FileMetaData> files, TableCache tableCache, InternalKeyComparator internalKeyComparator) {
         Preconditions.checkArgument(levelNumber >= 0, "levelNumber is negative");
         Preconditions.checkNotNull(files, "files is null");
         Preconditions.checkNotNull(tableCache, "tableCache is null");
@@ -58,29 +55,24 @@ public class Level
         this.levelNumber = levelNumber;
     }
 
-    public int getLevelNumber()
-    {
+    public int getLevelNumber() {
         return levelNumber;
     }
 
-    public List<FileMetaData> getFiles()
-    {
+    public List<FileMetaData> getFiles() {
         return files;
     }
 
     @Override
-    public LevelIterator iterator()
-    {
+    public LevelIterator iterator() {
         return createLevelConcatIterator(tableCache, files, internalKeyComparator);
     }
 
-    public static LevelIterator createLevelConcatIterator(TableCache tableCache, List<FileMetaData> files, InternalKeyComparator internalKeyComparator)
-    {
+    public static LevelIterator createLevelConcatIterator(TableCache tableCache, List<FileMetaData> files, InternalKeyComparator internalKeyComparator) {
         return new LevelIterator(tableCache, files, internalKeyComparator);
     }
 
-    public LookupResult get(LookupKey key, ReadStats readStats)
-    {
+    public LookupResult get(LookupKey key, ReadStats readStats) {
         if (files.isEmpty()) {
             return null;
         }
@@ -88,13 +80,11 @@ public class Level
         List<FileMetaData> fileMetaDataList = Lists.newArrayListWithCapacity(files.size());
         if (levelNumber == 0) {
             for (FileMetaData fileMetaData : files) {
-                if (internalKeyComparator.getUserComparator().compare(key.getUserKey(), fileMetaData.getSmallest().getUserKey()) >= 0 &&
-                        internalKeyComparator.getUserComparator().compare(key.getUserKey(), fileMetaData.getLargest().getUserKey()) <= 0) {
+                if (internalKeyComparator.getUserComparator().compare(key.getUserKey(), fileMetaData.getSmallest().getUserKey()) >= 0 && internalKeyComparator.getUserComparator().compare(key.getUserKey(), fileMetaData.getLargest().getUserKey()) <= 0) {
                     fileMetaDataList.add(fileMetaData);
                 }
             }
-        }
-        else {
+        } else {
             // Binary search to find earliest index whose largest key >= ikey.
             int index = ceilingEntryIndex(Lists.transform(files, GET_LARGEST_USER_KEY), key.getInternalKey(), internalKeyComparator);
 
@@ -142,8 +132,7 @@ public class Level
                 if (key.getUserKey().equals(internalKey.getUserKey())) {
                     if (internalKey.getValueType() == ValueType.DELETION) {
                         return LookupResult.deleted(key);
-                    }
-                    else if (internalKey.getValueType() == VALUE) {
+                    } else if (internalKey.getValueType() == VALUE) {
                         return LookupResult.ok(key, entry.getValue());
                     }
                 }
@@ -153,8 +142,7 @@ public class Level
         return null;
     }
 
-    private static <T> int ceilingEntryIndex(List<T> list, T key, Comparator<T> comparator)
-    {
+    private static <T> int ceilingEntryIndex(List<T> list, T key, Comparator<T> comparator) {
         int insertionPoint = Collections.binarySearch(list, key, comparator);
         if (insertionPoint < 0) {
             insertionPoint = -(insertionPoint + 1);
@@ -162,18 +150,15 @@ public class Level
         return insertionPoint;
     }
 
-    public boolean someFileOverlapsRange(Slice smallestUserKey, Slice largestUserKey)
-    {
+    public boolean someFileOverlapsRange(Slice smallestUserKey, Slice largestUserKey) {
         InternalKey smallestInternalKey = new InternalKey(smallestUserKey, MAX_SEQUENCE_NUMBER, VALUE);
         int index = findFile(smallestInternalKey);
 
         UserComparator userComparator = internalKeyComparator.getUserComparator();
-        return ((index < files.size()) &&
-                userComparator.compare(largestUserKey, files.get(index).getSmallest().getUserKey()) >= 0);
+        return ((index < files.size()) && userComparator.compare(largestUserKey, files.get(index).getSmallest().getUserKey()) >= 0);
     }
 
-    private int findFile(InternalKey targetKey)
-    {
+    private int findFile(InternalKey targetKey) {
         if (files.isEmpty()) {
             return files.size();
         }
@@ -190,8 +175,7 @@ public class Level
                 // Key at "mid.largest" is < "target".  Therefore all
                 // files at or before "mid" are uninteresting.
                 left = mid + 1;
-            }
-            else {
+            } else {
                 // Key at "mid.largest" is >= "target".  Therefore all files
                 // after "mid" are uninteresting.
                 right = mid;
@@ -200,15 +184,13 @@ public class Level
         return right;
     }
 
-    public void addFile(FileMetaData fileMetaData)
-    {
+    public void addFile(FileMetaData fileMetaData) {
         // todo remove mutation
         files.add(fileMetaData);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Level");
         sb.append("{levelNumber=").append(levelNumber);

@@ -17,8 +17,7 @@
  */
 package org.iq80.leveldb;
 
-public class Options
-{
+public class Options {
     private boolean createIfMissing = true;
     private boolean errorIfExists;
     private int writeBufferSize = 4 << 20;
@@ -34,142 +33,117 @@ public class Options
     private Logger logger;
     private long cacheSize;
 
-    static void checkArgNotNull(Object value, String name)
-    {
+    static void checkArgNotNull(Object value, String name) {
         if (value == null) {
             throw new IllegalArgumentException("The " + name + " argument cannot be null");
         }
     }
 
-    public boolean createIfMissing()
-    {
+    public boolean createIfMissing() {
         return createIfMissing;
     }
 
-    public Options createIfMissing(boolean createIfMissing)
-    {
+    public Options createIfMissing(boolean createIfMissing) {
         this.createIfMissing = createIfMissing;
         return this;
     }
 
-    public boolean errorIfExists()
-    {
+    public boolean errorIfExists() {
         return errorIfExists;
     }
 
-    public Options errorIfExists(boolean errorIfExists)
-    {
+    public Options errorIfExists(boolean errorIfExists) {
         this.errorIfExists = errorIfExists;
         return this;
     }
 
-    public int writeBufferSize()
-    {
+    public int writeBufferSize() {
         return writeBufferSize;
     }
 
-    public Options writeBufferSize(int writeBufferSize)
-    {
+    public Options writeBufferSize(int writeBufferSize) {
         this.writeBufferSize = writeBufferSize;
         return this;
     }
 
-    public int maxOpenFiles()
-    {
+    public int maxOpenFiles() {
         return maxOpenFiles;
     }
 
-    public Options maxOpenFiles(int maxOpenFiles)
-    {
+    public Options maxOpenFiles(int maxOpenFiles) {
         this.maxOpenFiles = maxOpenFiles;
         return this;
     }
 
-    public int blockRestartInterval()
-    {
+    public int blockRestartInterval() {
         return blockRestartInterval;
     }
 
-    public Options blockRestartInterval(int blockRestartInterval)
-    {
+    public Options blockRestartInterval(int blockRestartInterval) {
         this.blockRestartInterval = blockRestartInterval;
         return this;
     }
 
-    public int blockSize()
-    {
+    public int blockSize() {
         return blockSize;
     }
 
-    public Options blockSize(int blockSize)
-    {
+    public Options blockSize(int blockSize) {
         this.blockSize = blockSize;
         return this;
     }
 
-    public CompressionType compressionType()
-    {
+    public CompressionType compressionType() {
         return compressionType;
     }
 
-    public Options compressionType(CompressionType compressionType)
-    {
+    public Options compressionType(CompressionType compressionType) {
         checkArgNotNull(compressionType, "compressionType");
         this.compressionType = compressionType;
         return this;
     }
 
-    public boolean verifyChecksums()
-    {
+    public boolean verifyChecksums() {
         return verifyChecksums;
     }
 
-    public Options verifyChecksums(boolean verifyChecksums)
-    {
+    public Options verifyChecksums(boolean verifyChecksums) {
         this.verifyChecksums = verifyChecksums;
         return this;
     }
 
-    public long cacheSize()
-    {
+    public long cacheSize() {
         return cacheSize;
     }
 
-    public Options cacheSize(long cacheSize)
-    {
+    public Options cacheSize(long cacheSize) {
         this.cacheSize = cacheSize;
         return this;
     }
 
-    public DBComparator comparator()
-    {
+    public DBComparator comparator() {
         return comparator;
     }
 
-    public Options comparator(DBComparator comparator)
-    {
+    public Options comparator(DBComparator comparator) {
         this.comparator = comparator;
         return this;
     }
 
-    public Logger logger()
-    {
+    public Logger logger() {
         return logger;
     }
 
-    public Options logger(Logger logger)
-    {
+    public Options logger(Logger logger) {
         this.logger = logger;
         return this;
     }
 
-    public boolean paranoidChecks()
-    {
+    public boolean paranoidChecks() {
         return paranoidChecks;
     }
 
-    public Options paranoidChecks(boolean paranoidChecks)
-    {
+    public Options paranoidChecks(boolean paranoidChecks) {
         this.paranoidChecks = paranoidChecks;
         return this;
     }

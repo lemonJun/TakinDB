@@ -22,28 +22,23 @@ import org.iq80.leveldb.impl.SeekingIterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
-public abstract class AbstractSeekingIterator<K, V>
-        implements SeekingIterator<K, V>
-{
+public abstract class AbstractSeekingIterator<K, V> implements SeekingIterator<K, V> {
     private Entry<K, V> nextElement;
 
     @Override
-    public final void seekToFirst()
-    {
+    public final void seekToFirst() {
         nextElement = null;
         seekToFirstInternal();
     }
 
     @Override
-    public final void seek(K targetKey)
-    {
+    public final void seek(K targetKey) {
         nextElement = null;
         seekInternal(targetKey);
     }
 
     @Override
-    public final boolean hasNext()
-    {
+    public final boolean hasNext() {
         if (nextElement == null) {
             nextElement = getNextElement();
         }
@@ -51,8 +46,7 @@ public abstract class AbstractSeekingIterator<K, V>
     }
 
     @Override
-    public final Entry<K, V> next()
-    {
+    public final Entry<K, V> next() {
         if (nextElement == null) {
             nextElement = getNextElement();
             if (nextElement == null) {
@@ -66,8 +60,7 @@ public abstract class AbstractSeekingIterator<K, V>
     }
 
     @Override
-    public final Entry<K, V> peek()
-    {
+    public final Entry<K, V> peek() {
         if (nextElement == null) {
             nextElement = getNextElement();
             if (nextElement == null) {
@@ -79,8 +72,7 @@ public abstract class AbstractSeekingIterator<K, V>
     }
 
     @Override
-    public final void remove()
-    {
+    public final void remove() {
         throw new UnsupportedOperationException();
     }
 

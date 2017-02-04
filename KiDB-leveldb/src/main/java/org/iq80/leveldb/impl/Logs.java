@@ -23,30 +23,23 @@ import org.iq80.leveldb.util.Slice;
 import java.io.File;
 import java.io.IOException;
 
-public final class Logs
-{
-    private Logs()
-    {
+public final class Logs {
+    private Logs() {
     }
 
-    public static LogWriter createLogWriter(File file, long fileNumber)
-            throws IOException
-    {
+    public static LogWriter createLogWriter(File file, long fileNumber) throws IOException {
         if (Iq80DBFactory.USE_MMAP) {
             return new MMapLogWriter(file, fileNumber);
-        }
-        else {
+        } else {
             return new FileChannelLogWriter(file, fileNumber);
         }
     }
 
-    public static int getChunkChecksum(int chunkTypeId, Slice slice)
-    {
+    public static int getChunkChecksum(int chunkTypeId, Slice slice) {
         return getChunkChecksum(chunkTypeId, slice.getRawArray(), slice.getRawOffset(), slice.length());
     }
 
-    public static int getChunkChecksum(int chunkTypeId, byte[] buffer, int offset, int length)
-    {
+    public static int getChunkChecksum(int chunkTypeId, byte[] buffer, int offset, int length) {
         // Compute the crc of the record type and the payload.
         PureJavaCrc32C crc32C = new PureJavaCrc32C();
         crc32C.update(chunkTypeId);

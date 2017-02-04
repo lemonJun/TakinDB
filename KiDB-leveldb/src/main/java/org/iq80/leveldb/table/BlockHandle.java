@@ -23,37 +23,31 @@ import org.iq80.leveldb.util.SliceOutput;
 import org.iq80.leveldb.util.Slices;
 import org.iq80.leveldb.util.VariableLengthQuantity;
 
-public class BlockHandle
-{
+public class BlockHandle {
     public static final int MAX_ENCODED_LENGTH = 10 + 10;
 
     private final long offset;
     private final int dataSize;
 
-    BlockHandle(long offset, int dataSize)
-    {
+    BlockHandle(long offset, int dataSize) {
         this.offset = offset;
         this.dataSize = dataSize;
     }
 
-    public long getOffset()
-    {
+    public long getOffset() {
         return offset;
     }
 
-    public int getDataSize()
-    {
+    public int getDataSize() {
         return dataSize;
     }
 
-    public int getFullBlockSize()
-    {
+    public int getFullBlockSize() {
         return dataSize + BlockTrailer.ENCODED_LENGTH;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -74,16 +68,14 @@ public class BlockHandle
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = (int) (offset ^ (offset >>> 32));
         result = 31 * result + dataSize;
         return result;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("BlockHandle");
         sb.append("{offset=").append(offset);
@@ -92,8 +84,7 @@ public class BlockHandle
         return sb.toString();
     }
 
-    public static BlockHandle readBlockHandle(SliceInput sliceInput)
-    {
+    public static BlockHandle readBlockHandle(SliceInput sliceInput) {
         long offset = VariableLengthQuantity.readVariableLengthLong(sliceInput);
         long size = VariableLengthQuantity.readVariableLengthLong(sliceInput);
 
@@ -104,16 +95,14 @@ public class BlockHandle
         return new BlockHandle(offset, (int) size);
     }
 
-    public static Slice writeBlockHandle(BlockHandle blockHandle)
-    {
+    public static Slice writeBlockHandle(BlockHandle blockHandle) {
         Slice slice = Slices.allocate(MAX_ENCODED_LENGTH);
         SliceOutput sliceOutput = slice.output();
         writeBlockHandleTo(blockHandle, sliceOutput);
         return slice.slice();
     }
 
-    public static void writeBlockHandleTo(BlockHandle blockHandle, SliceOutput sliceOutput)
-    {
+    public static void writeBlockHandleTo(BlockHandle blockHandle, SliceOutput sliceOutput) {
         VariableLengthQuantity.writeVariableLengthLong(blockHandle.offset, sliceOutput);
         VariableLengthQuantity.writeVariableLengthLong(blockHandle.dataSize, sliceOutput);
     }

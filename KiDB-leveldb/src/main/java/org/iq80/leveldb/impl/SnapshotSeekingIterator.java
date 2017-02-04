@@ -25,43 +25,36 @@ import org.iq80.leveldb.util.Slice;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
-public final class SnapshotSeekingIterator
-        extends AbstractSeekingIterator<Slice, Slice>
-{
+public final class SnapshotSeekingIterator extends AbstractSeekingIterator<Slice, Slice> {
     private final DbIterator iterator;
     private final SnapshotImpl snapshot;
     private final Comparator<Slice> userComparator;
 
-    public SnapshotSeekingIterator(DbIterator iterator, SnapshotImpl snapshot, Comparator<Slice> userComparator)
-    {
+    public SnapshotSeekingIterator(DbIterator iterator, SnapshotImpl snapshot, Comparator<Slice> userComparator) {
         this.iterator = iterator;
         this.snapshot = snapshot;
         this.userComparator = userComparator;
         this.snapshot.getVersion().retain();
     }
 
-    public void close()
-    {
+    public void close() {
         this.snapshot.getVersion().release();
     }
 
     @Override
-    protected void seekToFirstInternal()
-    {
+    protected void seekToFirstInternal() {
         iterator.seekToFirst();
         findNextUserEntry(null);
     }
 
     @Override
-    protected void seekInternal(Slice targetKey)
-    {
+    protected void seekInternal(Slice targetKey) {
         iterator.seek(new InternalKey(targetKey, snapshot.getLastSequence(), ValueType.VALUE));
         findNextUserEntry(null);
     }
 
     @Override
-    protected Entry<Slice, Slice> getNextElement()
-    {
+    protected Entry<Slice, Slice> getNextElement() {
         if (!iterator.hasNext()) {
             return null;
         }
@@ -74,8 +67,7 @@ public final class SnapshotSeekingIterator
         return Maps.immutableEntry(next.getKey().getUserKey(), next.getValue());
     }
 
-    private void findNextUserEntry(Slice deletedKey)
-    {
+    private void findNextUserEntry(Slice deletedKey) {
         // if there are no more entries, we are done
         if (!iterator.hasNext()) {
             return;
@@ -94,8 +86,7 @@ public final class SnapshotSeekingIterator
             // if the next entry is a deletion, skip all subsequent entries for that key
             if (internalKey.getValueType() == ValueType.DELETION) {
                 deletedKey = internalKey.getUserKey();
-            }
-            else if (internalKey.getValueType() == ValueType.VALUE) {
+            } else if (internalKey.getValueType() == ValueType.VALUE) {
                 // is this value masked by a prior deletion record?
                 if (deletedKey == null || userComparator.compare(internalKey.getUserKey(), deletedKey) > 0) {
                     return;
@@ -106,8 +97,7 @@ public final class SnapshotSeekingIterator
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("SnapshotSeekingIterator");
         sb.append("{snapshot=").append(snapshot);
