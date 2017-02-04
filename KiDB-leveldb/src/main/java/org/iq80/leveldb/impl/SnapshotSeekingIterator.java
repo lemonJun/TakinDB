@@ -25,6 +25,13 @@ import org.iq80.leveldb.util.Slice;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
+/**
+ * 使用遍历功能时  实际是做了一个快照
+ *
+ * @author WangYazhou
+ * @date  2017年2月4日 下午8:04:48
+ * @see
+ */
 public final class SnapshotSeekingIterator extends AbstractSeekingIterator<Slice, Slice> {
     private final DbIterator iterator;
     private final SnapshotImpl snapshot;

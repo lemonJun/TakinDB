@@ -659,6 +659,10 @@ public class DbImpl implements DB {
         return iterator(new ReadOptions());
     }
 
+    /**
+     * 实现遍历功能
+     * 加了排它锁
+     */
     @Override
     public SeekingIteratorAdapter iterator(ReadOptions options) {
         checkBackgroundException();

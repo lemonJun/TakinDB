@@ -75,6 +75,7 @@ public class Iq80DBFactory implements DBFactory {
         return new DbImpl(options, path);
     }
 
+    //这一步操作会真的直接把数据删除  所以导致下面无法修复
     @Override
     public void destroy(File path, Options options) throws IOException {
         // TODO: This should really only delete leveldb-created files.

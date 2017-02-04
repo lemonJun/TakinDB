@@ -32,7 +32,7 @@
 	
 	<modules>
 		<module>KiDB-leveldb</module>
-		<module>KiDB-leveldb-api</module>
+		
 		<module>KiDB-raft</module>
 		<module>KiDB-client</module>
 		<module>KiDB-example</module>

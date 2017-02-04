@@ -37,6 +37,13 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * 
+ *
+ * @author WangYazhou
+ * @date  2017年2月4日 下午8:10:49
+ * @see
+ */
 public class TableCache {
     private final LoadingCache<Long, TableAndFile> cache;
     private final Finalizer<Table> finalizer = new Finalizer<>(1);

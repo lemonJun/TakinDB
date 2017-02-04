@@ -25,6 +25,13 @@ import org.iq80.leveldb.util.Slices;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 
+ *
+ * @author WangYazhou
+ * @date  2017年2月4日 下午8:04:29
+ * @see
+ */
 public class SeekingIteratorAdapter implements DBIterator {
     private final SnapshotSeekingIterator seekingIterator;
     private final AtomicBoolean closed = new AtomicBoolean(false);
