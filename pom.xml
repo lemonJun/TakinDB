@@ -35,6 +35,7 @@
 		<module>KiDB-raft</module>
 		<module>KiDB-client</module>
 		<module>KiDB-example</module>
+		<module>TakinDB-io</module>
 	</modules>
 
 	<dependencyManagement>

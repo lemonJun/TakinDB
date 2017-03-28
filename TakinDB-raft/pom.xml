@@ -9,20 +9,7 @@
 	<artifactId>TakinDB-raft</artifactId>
 
 	<dependencies>
-		<dependency>
-			<groupId>lemon</groupId>
-			<artifactId>KiDB-leveldb-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>lemon</groupId>
-			<artifactId>KiDB-leveldb</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jgroups</groupId>
-			<artifactId>jgroups</artifactId>
-		</dependency>
+	
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
