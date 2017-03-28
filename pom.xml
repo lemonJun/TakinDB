@@ -8,8 +8,7 @@
 		<version>18</version>
 	</parent>
 
-	<groupId>lemon</groupId>
-	<artifactId>KiDB</artifactId>
+	<artifactId>TakinDB</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
@@ -228,4 +227,5 @@
 		</profile>
 	</profiles>
 
+	<groupId>com.takin</groupId>
 </project>
