@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>lemon</groupId>
-		<artifactId>KiDB</artifactId>
+		<groupId>com.takin</groupId>
+		<artifactId>TakinDB</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>KiDB-leveldb</artifactId>
+	<artifactId>TakinDB-leveldb</artifactId>
 
 
 	<dependencies>
