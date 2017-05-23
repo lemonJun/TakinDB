@@ -35,17 +35,18 @@ public class KVBootstrap extends AbstractService {
 
     public void dostop() {
         try {
+            GuiceDI.getInstance(KVStoreManager.class).close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        try {
+        
+        try { 
             server.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     @Override
     protected void doStart() {
         try {

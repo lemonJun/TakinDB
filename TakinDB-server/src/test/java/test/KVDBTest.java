@@ -9,5 +9,4 @@ public class KVDBTest {
         broker.init(new String[] {}, false);
         broker.startAsync().awaitRunning();
     }
-
 }

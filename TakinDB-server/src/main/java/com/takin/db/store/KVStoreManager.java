@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.takin.db.KVConfig;
+import com.takin.rpc.server.GuiceDI;
 
 /**
  * 
@@ -44,11 +46,13 @@ public class KVStoreManager {
     private KVStoreManager() {
         try {
             scheduler = Executors.newScheduledThreadPool(1);
-            File indexPath = new File("/tmp/storeLuceune");
+            KVConfig kvconfig = GuiceDI.getInstance(KVConfig.class);
+            File indexPath = new File(kvconfig.getLogdirs());
 
             IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
             config.setOpenMode(OpenMode.CREATE_OR_APPEND);
             config.setRAMBufferSizeMB(64);
+            
             writer = new IndexWriter(FSDirectory.open(indexPath), config);
 
             scheduler.scheduleAtFixedRate(new Runnable() {
@@ -56,6 +60,7 @@ public class KVStoreManager {
                 public void run() {
                     try {
                         writer.commit();
+                        logger.info("commit");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -71,11 +76,20 @@ public class KVStoreManager {
     public boolean insert(String key, String value) {
         try {
             writer.addDocument(getDocument(key, value));
+            logger.info(String.format("insert key:%s value:%s", key, value));
             return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void close() {
+        try {
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Document getDocument(String key, String value) {

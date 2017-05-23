@@ -32,8 +32,6 @@
 
 	<modules>
 		<module>TakinDB-client</module>
-		<module>TakinDB-example</module>
-		<module>TakinDB-raft</module>
 		<module>TakinDB-server</module>
 	</modules>
 
@@ -46,13 +44,25 @@
 			</dependency>
 			<dependency>
 				<groupId>com.takin</groupId>
-				<artifactId>TakinDB-example</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.takin</groupId>
 				<artifactId>TakinDB-server</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.lucene</groupId>
+				<artifactId>lucene-codecs</artifactId>
+				<version>4.5.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.lucene</groupId>
+				<artifactId>lucene-core</artifactId>
+				<version>4.5.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.lucene</groupId>
+				<artifactId>lucene-analyzers-common</artifactId>
+				<version>4.5.1</version>
 			</dependency>
 
 			<dependency>

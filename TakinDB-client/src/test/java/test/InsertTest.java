@@ -10,9 +10,9 @@ import com.takin.db.proxy.KVDBService;
 
 public class InsertTest {
 
-    private static final RateLimiter limit = RateLimiter.create(1d);
+    private static final RateLimiter limit = RateLimiter.create(100d);
 
-    private static final AtomicInteger total = new AtomicInteger(0);
+    private static final AtomicInteger total = new AtomicInteger(8972);
 
     public static void main(String[] args) {
         try {
@@ -20,7 +20,7 @@ public class InsertTest {
             final KVDBService producer = KVDBProvider.getService();
             while (true) {
                 if (limit.tryAcquire()) {
-                    producer.insert("k" + total.getAndIncrement(), "v" + total.get());
+                    producer.insert("k" + total.getAndIncrement(), "v" + System.currentTimeMillis());
                 }
             }
         } catch (Exception e) {
