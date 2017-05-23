@@ -52,7 +52,7 @@ public class KVStoreManager {
             IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
             config.setOpenMode(OpenMode.CREATE_OR_APPEND);
             config.setRAMBufferSizeMB(64);
-            
+
             writer = new IndexWriter(FSDirectory.open(indexPath), config);
 
             scheduler.scheduleAtFixedRate(new Runnable() {
