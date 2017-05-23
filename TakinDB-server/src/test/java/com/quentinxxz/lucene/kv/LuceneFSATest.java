@@ -31,7 +31,7 @@ public class LuceneFSATest {
     public static void main(String args[]) throws IOException {
         List<String> keys = new ArrayList<String>();
 
-        File indexPath = new File("/tmp/fsaLuceune");
+        File indexPath = new File("D:/db/fsaLuceune");
 
         AtomicInteger index = new AtomicInteger(0);
 

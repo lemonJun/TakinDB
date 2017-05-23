@@ -55,7 +55,7 @@ public class LucenePayloadTest {
     public static void main(String args[]) throws IOException {
         List<String> keys = new ArrayList<String>();
         AtomicInteger index = new AtomicInteger(0);
-        File indexPath = new File("/tmp/docValueLuceune");
+        File indexPath = new File("D:/db/docValueLuceune");
 
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
         config.setOpenMode(OpenMode.CREATE);

@@ -84,7 +84,7 @@ public class LuceneDocValuesTest {
     public static void main(String args[]) throws IOException {
         List<String> keys = new ArrayList<String>();
         AtomicInteger index = new AtomicInteger(0);
-        File indexPath = new File("/tmp/docValueLuceune");
+        File indexPath = new File("D:/db/docValueLuceune");
 
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
         config.setOpenMode(OpenMode.CREATE);
@@ -119,7 +119,7 @@ public class LuceneDocValuesTest {
         } finally {
             writer.close();
         }
-        
+
         // 性能测试，100w次查询用时
         long start;
         List<TermsEnum> termsEnumList;
