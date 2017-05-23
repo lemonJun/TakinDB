@@ -1,8 +1,7 @@
-package com.quentinxxz.lucene.kv;
+package test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,41 +13,71 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.DocsAndPositionsEnum;
+import org.apache.lucene.index.DocsEnum;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
+import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
 
-import com.google.common.primitives.Ints;
-
 /**
- * 类LucenePayloadTest.java的实现描述：use lucene payload as value store
+ * 类LuceneDocValuesTest.java的实现描述：use DocValues as value store
  * 
- * @author quentinxxz 2016年10月23日 下午3:31:55
+ * @author quentinxxz 2016年10月23日 下午3:30:19
  */
-public class LucenePayloadTest {
+public class LuceneDocValuesTest {
 
     protected static class KeyField extends Field {
-
-        public static final FieldType TYPE_NOT_STORED = new FieldType();
+        /**
+         * Type for numeric DocValues.
+         */
+        public static final FieldType TYPE = new FieldType();
 
         static {
-            TYPE_NOT_STORED.setIndexed(true);
-            TYPE_NOT_STORED.setTokenized(true);
-            // TYPE_NOT_STORED.setStoreTermVectors(true);
-            TYPE_NOT_STORED.freeze();
+            TYPE.setStored(false);
+            TYPE.setIndexed(true);
+            TYPE.setOmitNorms(true);
+            TYPE.setIndexOptions(IndexOptions.DOCS_ONLY);
+            TYPE.setTokenized(false);
+            TYPE.freeze();
         }
 
-        public KeyField(String name, String value) {
-            super(name, new IntPayloadTokenizer(Version.LUCENE_45, new StringReader(value)), TYPE_NOT_STORED);
+        public KeyField(String name, String key) {
+            super(name, TYPE);
+            fieldsData = key;
+        }
+    }
+
+    protected static class ValueField extends Field {
+
+        /**
+         * Type for numeric DocValues.
+         */
+        public static final FieldType TYPE = new FieldType();
+
+        static {
+            TYPE.setIndexed(true);
+            TYPE.setStored(false);
+            TYPE.setDocValueType(DocValuesType.NUMERIC);
+            TYPE.setNumericType(NumericType.INT);
+            TYPE.setOmitNorms(true);
+            TYPE.setIndexOptions(IndexOptions.DOCS_ONLY);
+            TYPE.freeze();
+        }
+        
+        public ValueField(String name, long value) {
+            super(name, TYPE);
+            fieldsData = value;
         }
     }
 
@@ -56,11 +85,11 @@ public class LucenePayloadTest {
         List<String> keys = new ArrayList<String>();
         AtomicInteger index = new AtomicInteger(0);
         File indexPath = new File("D:/db/docValueLuceune");
-
+        
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
         config.setOpenMode(OpenMode.CREATE);
         config.setRAMBufferSizeMB(64);
-
+        
         IndexWriter writer = new IndexWriter(FSDirectory.open(indexPath), config);
 
         try {
@@ -69,13 +98,13 @@ public class LucenePayloadTest {
 
                 @Override
                 public String get() {
-                    return LucenePayloadTest.getRandomString(20);
+                    return LuceneDocValuesTest.getRandomString(20);
                 }
 
             }).limit(2000000).forEach(key -> {
                 keys.add(key);
                 try {
-                    writer.addDocument(LucenePayloadTest.getDocument(key, index.getAndIncrement()));
+                    writer.addDocument(LuceneDocValuesTest.getDocument(key, index.getAndIncrement()));
                 } catch (Exception e) {
                 }
 
@@ -83,23 +112,24 @@ public class LucenePayloadTest {
                     System.out.println(index + " records has benn inserted");
 
             });
-
+            
             writer.forceMerge(1);
         } catch (IOException e) {
             throw new RuntimeException("building index failed. ", e);
         } finally {
             writer.close();
         }
-
+        
         // 性能测试，100w次查询用时
         long start;
         List<TermsEnum> termsEnumList;
+        List<NumericDocValues> docValuesList;
         IndexReader indexReader = DirectoryReader.open(new MMapDirectory(indexPath));
 
-        // docValuesList = new ArrayList<NumericDocValues>();
+        docValuesList = new ArrayList<NumericDocValues>();
         termsEnumList = new ArrayList<TermsEnum>();// 事先初始化termsEnumList，会有多线程问题，当多线程查询时，请用ThreadLocal封装
         for (AtomicReaderContext context : indexReader.leaves()) {
-            // docValuesList.add(context.reader().getNumericDocValues("value"));
+            docValuesList.add(context.reader().getNumericDocValues("value"));
             termsEnumList.add(context.reader().terms("key").iterator(null));
         }
 
@@ -112,19 +142,18 @@ public class LucenePayloadTest {
 
                 try {
                     for (int l = 0; l < termsEnumList.size(); l++) {
-
+                        NumericDocValues docValues = docValuesList.get(l);
                         TermsEnum termsEnum = termsEnumList.get(l);
-                        // TermsEnum termsEnum = ctx.reader().terms(term.field()).iterator(null);
+
                         if (termsEnum.seekExact(term.bytes()) == false)
                             continue;
-                        DocsAndPositionsEnum docsAndPositionsEnum = termsEnum.docsAndPositions(null, null, DocsAndPositionsEnum.FLAG_PAYLOADS);
-                        docsAndPositionsEnum.nextPosition();
-                        int result = Ints.fromByteArray(docsAndPositionsEnum.getPayload().bytes);
-                        // System.out.println(result);
-                        return; // found
+                        DocsEnum docs = termsEnum.docs(null, null);
+                        int docId = docs.nextDoc();
+                        Integer reutlt = (int) docValues.get(docId);
+                        // System.out.println(reutlt);
+                        return;
 
                     }
-                    System.out.println("not found");
 
                 } catch (Exception e) {
                 }
@@ -147,7 +176,8 @@ public class LucenePayloadTest {
 
     public static Document getDocument(String key, int value) {
         Document doc = new Document();
-        doc.add(new KeyField("key", key + ":" + value));
+        doc.add(new KeyField("key", key));
+        doc.add(new ValueField("value", value));
         return doc;
     }
 

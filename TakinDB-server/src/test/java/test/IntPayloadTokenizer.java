@@ -5,7 +5,7 @@
  * use it only in accordance with the terms of the license agreement you entered
  * into with Alibaba.com.
  */
-package com.quentinxxz.lucene.kv;
+package test;
 
 import java.io.IOException;
 import java.io.Reader;

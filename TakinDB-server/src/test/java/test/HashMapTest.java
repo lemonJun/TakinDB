@@ -1,4 +1,4 @@
-package com.quentinxxz.lucene.kv;
+package test;
 
 import java.util.ArrayList;
 import java.util.HashMap;

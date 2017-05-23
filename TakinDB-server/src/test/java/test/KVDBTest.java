@@ -1,8 +1,8 @@
-package com.quentinxxz.lucene.kv;
+package test;
 
 import com.takin.db.KVBootstrap;
 
-public class KVTest {
+public class KVDBTest {
 
     public static void main(String[] args) {
         KVBootstrap broker = new KVBootstrap();
