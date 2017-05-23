@@ -74,7 +74,7 @@ public class LuceneDocValuesTest {
             TYPE.setIndexOptions(IndexOptions.DOCS_ONLY);
             TYPE.freeze();
         }
-
+        
         public ValueField(String name, long value) {
             super(name, TYPE);
             fieldsData = value;
@@ -85,11 +85,11 @@ public class LuceneDocValuesTest {
         List<String> keys = new ArrayList<String>();
         AtomicInteger index = new AtomicInteger(0);
         File indexPath = new File("D:/db/docValueLuceune");
-
+        
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
         config.setOpenMode(OpenMode.CREATE);
         config.setRAMBufferSizeMB(64);
-
+        
         IndexWriter writer = new IndexWriter(FSDirectory.open(indexPath), config);
 
         try {
@@ -112,14 +112,14 @@ public class LuceneDocValuesTest {
                     System.out.println(index + " records has benn inserted");
 
             });
-
+            
             writer.forceMerge(1);
         } catch (IOException e) {
             throw new RuntimeException("building index failed. ", e);
         } finally {
             writer.close();
         }
-
+        
         // 性能测试，100w次查询用时
         long start;
         List<TermsEnum> termsEnumList;
