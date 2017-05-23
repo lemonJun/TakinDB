@@ -7,10 +7,11 @@
 		<artifactId>apache</artifactId>
 		<version>18</version>
 	</parent>
-
+	<groupId>com.takin</groupId>
 	<artifactId>TakinDB</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -28,18 +29,31 @@
 		<guava.version>21.0</guava.version>
 		<jgroups.version>3.6.12.Final</jgroups.version>
 	</properties>
-	
+
 	<modules>
-		<module>KiDB-leveldb</module>
-		
-		<module>KiDB-raft</module>
-		<module>KiDB-client</module>
-		<module>KiDB-example</module>
-		<module>TakinDB-io</module>
+		<module>TakinDB-client</module>
+		<module>TakinDB-example</module>
+		<module>TakinDB-raft</module>
+		<module>TakinDB-server</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.takin</groupId>
+				<artifactId>TakinDB-client</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.takin</groupId>
+				<artifactId>TakinDB-example</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.takin</groupId>
+				<artifactId>TakinDB-server</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.jgroups</groupId>
@@ -68,30 +82,6 @@
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<!-- redirect apache commons logging -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jcl-over-slf4j</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<!-- redirect jdk util logging -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jul-to-slf4j</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<!-- redirect log4j -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>log4j-over-slf4j</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<!-- log framework end -->
 
 			<dependency>
 				<groupId>junit</groupId>
@@ -99,17 +89,6 @@
 				<version>${junit.version}</version>
 			</dependency>
 
-			<!-- logback-access访问模块与Servlet容器集成提供通过Http来访问日记的功能 -->
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-access</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-core</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
 
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -174,59 +153,4 @@
 
 
 
-
-	<profiles>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.1</version>
-						<configuration>
-							<source>1.7</source>
-							<target>1.7</target>
-							<encoding>UTF-8</encoding>
-						</configuration>
-					</plugin>
-					<!-- Source -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<version>2.2.1</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>jar-no-fork</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-
-					<!-- Javadoc -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.10.3</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam><!-- 防止生成docs时报错 -->
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
-	<groupId>com.takin</groupId>
 </project>
