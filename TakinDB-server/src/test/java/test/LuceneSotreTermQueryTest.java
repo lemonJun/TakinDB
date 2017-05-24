@@ -134,7 +134,7 @@ public class LuceneSotreTermQueryTest {
                         System.out.println("not found");
                         return;
                     }
-
+                    
                     Document d = indexSearcher.doc(docs.scoreDocs[0].doc);
                     Integer result = (Integer) d.getField("value").numericValue();// 获得reult
                     // System.out.println(result);

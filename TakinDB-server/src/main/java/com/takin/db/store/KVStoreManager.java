@@ -2,6 +2,7 @@ package com.takin.db.store;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,15 +11,22 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.takin.db.KVConfig;
@@ -59,18 +67,35 @@ public class KVStoreManager {
                 @Override
                 public void run() {
                     try {
-                        writer.commit();
+                        writer.maybeMerge();
                         logger.info("commit");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            }, 1000, 1000, TimeUnit.MILLISECONDS);
+            }, 1000, 5000, TimeUnit.MILLISECONDS);
 
         } catch (IOException e) {
             logger.error("", e);
             System.exit(-1);
         }
+    }
+
+    public List<String> get(String key) {
+        List<String> values = Lists.newArrayList();
+        try {
+            IndexSearcher indexSearcher = new IndexSearcher(DirectoryReader.open(writer, true));
+            Query query = new TermQuery(new Term("k", key));
+            TopDocs docs = indexSearcher.search(query, 10);
+            if (docs != null && docs.totalHits > 0) {
+                for (int i = 0; i < docs.totalHits; i++) {
+                    values.add(indexSearcher.doc(docs.scoreDocs[i].doc).get("v"));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return values;
     }
 
     public boolean insert(String key, String value) {
