@@ -13,14 +13,21 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TrackingIndexWriter;
+import org.apache.lucene.search.ControlledRealTimeReopenThread;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ReferenceManager;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
@@ -46,9 +53,13 @@ import com.takin.rpc.server.GuiceDI;
 public class KVStoreManager {
     private static final Logger logger = LoggerFactory.getLogger(KVStoreManager.class);
 
-    private IndexWriter writer;
-
     private ScheduledExecutorService scheduler;
+    private static final long commitinteranl = 10 * 1000;
+
+    private IndexWriter writer;
+    private IndexReader reader;
+    //    private IndexSearcher searcher;
+    private ReferenceManager<IndexSearcher> mgr = null;//是线程安全的  
 
     @Inject
     private KVStoreManager() {
@@ -60,31 +71,81 @@ public class KVStoreManager {
             IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, new WhitespaceAnalyzer(Version.LUCENE_45));
             config.setOpenMode(OpenMode.CREATE_OR_APPEND);
             config.setRAMBufferSizeMB(64);
+            Directory directory = FSDirectory.open(indexPath);
+            writer = new IndexWriter(directory, config);
+            reader = DirectoryReader.open(writer, true);
+            //            searcher = new IndexSearcher(reader);
+            //
+            mgr = new SearcherManager(writer, true, new SearcherFactory());
+            TrackingIndexWriter trackWriter = new TrackingIndexWriter(writer);
+            ControlledRealTimeReopenThread<IndexSearcher> CRTReopenThread = new ControlledRealTimeReopenThread<IndexSearcher>(trackWriter, mgr, 5.0, 0.025);
+            CRTReopenThread.setDaemon(true);
+            CRTReopenThread.setName("Lucene-NRT");
+            CRTReopenThread.start();
 
-            writer = new IndexWriter(FSDirectory.open(indexPath), config);
-
+            //后台定时的提交
             scheduler.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        writer.maybeMerge();
+                        writer.commit();
+                        writer.forceMerge(3);
                         logger.info("commit");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            }, 1000, 5000, TimeUnit.MILLISECONDS);
-
+            }, 1000, commitinteranl, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
             logger.error("", e);
             System.exit(-1);
         }
     }
 
+    //获取最新的reader,不能解决并发的问题
+    private IndexSearcher getSearcher() {
+        IndexSearcher searcher = null;
+        try {
+            IndexReader newReader = DirectoryReader.openIfChanged((DirectoryReader) reader, writer, true);
+            if (reader != newReader) {
+                searcher = new IndexSearcher(newReader);
+                reader.close();
+                reader = newReader;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return searcher;
+    }
+
+    /**
+     * 依赖于referencemanager解决并发的打开  关闭 reader   搜索数据
+     * 但是searchermanager是依赖于writer.commit的，而commit是很耗时的操作
+     * @return
+     */
+    @SuppressWarnings("unused")
     public List<String> get(String key) {
         List<String> values = Lists.newArrayList();
+        IndexSearcher searcher = null;
         try {
-            IndexSearcher indexSearcher = new IndexSearcher(DirectoryReader.open(writer, true));
+            searcher = mgr.acquire();
+            IndexSearcher indexSearcher = getSearcher();
+            values = query(key, indexSearcher);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                mgr.release(searcher);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return values;
+    }
+
+    private List<String> query(String key, IndexSearcher indexSearcher) {
+        List<String> values = Lists.newArrayList();
+        try {
             Query query = new TermQuery(new Term("k", key));
             TopDocs docs = indexSearcher.search(query, 10);
             if (docs != null && docs.totalHits > 0) {
@@ -111,6 +172,7 @@ public class KVStoreManager {
 
     public void close() {
         try {
+            writer.commit();
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();

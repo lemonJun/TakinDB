@@ -24,7 +24,7 @@
 		<commons-codec.version>1.10</commons-codec.version>
 		<fastjson.version>1.2.23</fastjson.version>
 		<testng.version>6.10</testng.version>
-		<lucene.version>4.5.1</lucene.version>
+		<lucene.version>4.10.4</lucene.version>
 		<guava.version>21.0</guava.version>
 		<jgroups.version>3.6.12.Final</jgroups.version>
 	</properties>
