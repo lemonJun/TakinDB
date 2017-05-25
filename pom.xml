@@ -32,6 +32,7 @@
 	<modules>
 		<module>TakinDB-client</module>
 		<module>TakinDB-server</module>
+		<module>TakinDB-lucene6</module>
 	</modules>
 
 	<dependencyManagement>

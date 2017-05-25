@@ -14,11 +14,12 @@ public class QueryTest {
         try {
             PropertyConfigurator.configure("conf/log4j.properties");
             final KVDBService producer = KVDBProvider.getService();
-            List<String> values = producer.get("k59");
+            List<String> values = producer.get("k5999");
             System.out.println(JSON.toJSONString(values));
             System.exit(-1);
         } catch (Exception e) {
             e.printStackTrace();
+            
         }
     }
 }

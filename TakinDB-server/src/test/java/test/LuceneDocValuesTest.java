@@ -32,6 +32,7 @@ import org.apache.lucene.util.Version;
 
 /**
  * 类LuceneDocValuesTest.java的实现描述：use DocValues as value store
+ * 配置不同 
  * 
  * @author quentinxxz 2016年10月23日 下午3:30:19
  */

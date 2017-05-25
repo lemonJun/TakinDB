@@ -17,4 +17,6 @@ public interface KVDBService {
 
     public abstract List<String> get(String key) throws Exception;
 
+    public abstract List<String> lt(String key) throws Exception;
+
 }

@@ -21,4 +21,9 @@ public class KVDBServiceImpl implements KVDBService {
         return store.get(key);
     }
 
+    @Override
+    public List<String> lt(String key) throws Exception {
+        return null;
+    }
+
 }

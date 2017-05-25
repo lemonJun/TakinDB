@@ -10,7 +10,7 @@ import com.takin.db.proxy.KVDBService;
 
 public class InsertTest {
 
-    private static final RateLimiter limit = RateLimiter.create(10d);
+    private static final RateLimiter limit = RateLimiter.create(100d);
 
     private static final AtomicInteger total = new AtomicInteger(0);
 

@@ -54,7 +54,7 @@ public class KVStoreManager {
     private static final Logger logger = LoggerFactory.getLogger(KVStoreManager.class);
 
     private ScheduledExecutorService scheduler;
-    private static final long commitinteranl = 10 * 1000;
+    private static final long commitinteranl = 5 * 1000;
 
     private IndexWriter writer;
     private IndexReader reader;
@@ -89,7 +89,7 @@ public class KVStoreManager {
                 public void run() {
                     try {
                         writer.commit();
-                        writer.forceMerge(3);
+                        //                        writer.forceMerge(3);
                         logger.info("commit");
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -130,7 +130,8 @@ public class KVStoreManager {
         try {
             searcher = mgr.acquire();
             IndexSearcher indexSearcher = getSearcher();
-            values = query(key, indexSearcher);
+            Query query = new TermQuery(new Term("k", key));
+            values = query(query, indexSearcher);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -143,10 +144,29 @@ public class KVStoreManager {
         return values;
     }
 
-    private List<String> query(String key, IndexSearcher indexSearcher) {
+    public List<String> lt(String key) {
+        List<String> values = Lists.newArrayList();
+        IndexSearcher searcher = null;
+        try {
+            searcher = mgr.acquire();
+            IndexSearcher indexSearcher = getSearcher();
+            Query query = new TermQuery(new Term("k", key));
+            values = query(query, indexSearcher);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                mgr.release(searcher);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return values;
+    }
+
+    private List<String> query(Query query, IndexSearcher indexSearcher) {
         List<String> values = Lists.newArrayList();
         try {
-            Query query = new TermQuery(new Term("k", key));
             TopDocs docs = indexSearcher.search(query, 10);
             if (docs != null && docs.totalHits > 0) {
                 for (int i = 0; i < docs.totalHits; i++) {
