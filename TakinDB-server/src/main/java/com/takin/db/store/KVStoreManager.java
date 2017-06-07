@@ -129,9 +129,9 @@ public class KVStoreManager {
         IndexSearcher searcher = null;
         try {
             searcher = mgr.acquire();
-            IndexSearcher indexSearcher = getSearcher();
+            //            IndexSearcher indexSearcher = getSearcher();
             Query query = new TermQuery(new Term("k", key));
-            values = query(query, indexSearcher);
+            values = query(query, searcher);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -149,9 +149,9 @@ public class KVStoreManager {
         IndexSearcher searcher = null;
         try {
             searcher = mgr.acquire();
-            IndexSearcher indexSearcher = getSearcher();
+            //            IndexSearcher indexSearcher = getSearcher();
             Query query = new TermQuery(new Term("k", key));
-            values = query(query, indexSearcher);
+            values = query(query, searcher);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
